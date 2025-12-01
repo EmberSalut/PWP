@@ -12,24 +12,36 @@
       tailwind.config = {
          theme: {
             extend: {
+               // 优化为更清新的马卡龙色系
                colors: {
-                  primary: '#4299e1',
-                  secondary: '#38b2ac',
-                  accent: '#9f7aea',
-                  neutral: '#f7fafc',
-                  darkBg: '#1a202c',
-                  darkCard: '#2d3748',
-                  admin: '#e53e3e'
+                  primary: '#6366f1', // 淡紫蓝（主色）
+                  secondary: '#10b981', // 薄荷绿（次要色）
+                  accent: '#f472b6', // 蜜桃粉（强调色）
+                  neutral: '#f8fafc', // 超浅灰（浅色背景）
+                  darkBg: '#0f172a', // 深海蓝（深色背景）
+                  darkCard: '#1e293b', // 石板灰（深色卡片）
+                  admin: '#ef4444', // 珊瑚红（管理员色）
+                  gray: {
+                     100: '#f1f5f9',
+                     200: '#e2e8f0',
+                     300: '#cbd5e1',
+                     400: '#94a3b8',
+                     500: '#64748b',
+                     600: '#475569',
+                     700: '#334155',
+                     800: '#1e293b',
+                     900: '#0f172a',
+                  }
                },
                fontFamily: {
                   sans: ['Inter', 'system-ui', 'sans-serif'],
                },
                boxShadow: {
-                  'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
-                  'card-hover': '0 10px 30px rgba(0, 0, 0, 0.12)',
-                  'dark-card': '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  'dark-card-hover': '0 10px 30px rgba(0, 0, 0, 0.4)',
-                  'admin': '0 0 0 2px rgba(229, 62, 62, 0.2)'
+                  'card': '0 2px 15px rgba(0, 0, 0, 0.05)', // 更轻柔的阴影
+                  'card-hover': '0 8px 25px rgba(0, 0, 0, 0.1)',
+                  'dark-card': '0 2px 15px rgba(0, 0, 0, 0.2)',
+                  'dark-card-hover': '0 8px 25px rgba(0, 0, 0, 0.3)',
+                  'admin': '0 0 0 2px rgba(239, 68, 68, 0.15)'
                }
             },
          }
@@ -38,25 +50,31 @@
    <style type="text/tailwindcss">
       @layer utilities {
             .content-auto { content-visibility: auto; }
-            .link-transition { transition: all 0.3s ease; }
-            .card-transition { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-            .search-focus { @apply focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none; }
+            .link-transition { transition: all 0.2s ease-in-out; } /* 更快的过渡 */
+            .card-transition { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+            .search-focus { @apply focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none; }
             .dark-mode { @apply bg-darkBg text-white; }
             .dark-card { @apply bg-darkCard text-white; }
             .dark-text-gray-600 { @apply text-gray-300; }
-            .dark-text-gray-400 { @apply text-gray-500; }
+            .dark-text-gray-400 { @apply text-gray-400; }
             .modal-enter { @apply scale-100 opacity-100; }
-            .delete-btn { @apply opacity-0 group-hover:opacity-100 transition-opacity ml-auto text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300; }
-            .admin-btn { @apply px-3 py-2 rounded-full bg-admin/10 hover:bg-admin/20 text-admin transition-colors; }
+            /* 优化删除按钮样式 - 更醒目且过渡更自然 */
+            .delete-btn { 
+               @apply opacity-0 group-hover:opacity-100 transition-opacity ml-auto text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300;
+               @apply transform translate-x-2 group-hover:translate-x-0; /* 轻微划入效果 */
+            }
+            .admin-btn { @apply rounded-full bg-admin/10 hover:bg-admin/20 text-admin transition-colors cursor-pointer; }
             .loading-spin { animation: spin 1s linear infinite; }
             @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            /* 头像悬停效果 */
+            .avatar-hover { @apply hover:ring-2 hover:ring-primary/50 transition-all duration-200; }
         }
     </style>
 </head>
 
-<body class="bg-neutral text-dark min-h-screen flex flex-col transition-colors duration-300">
+<body class="bg-neutral text-gray-800 min-h-screen flex flex-col transition-colors duration-300">
    <!-- 顶部导航栏 -->
-   <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-md sticky top-0 z-50">
+   <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-sm sticky top-0 z-50">
       <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between">
          <div class="flex items-center mb-4 md:mb-0">
             <i class="fa fa-bookmark-o text-2xl mr-3" aria-hidden="true"></i>
@@ -78,11 +96,6 @@
                <i class="fa fa-plus mr-2" aria-hidden="true"></i>添加网址
             </button>
 
-            <!-- 管理员按钮 -->
-            <button id="adminBtn" class="admin-btn">
-               <i class="fa fa-cog text-xl" aria-hidden="true"></i>
-            </button>
-
             <!-- 主题切换按钮 -->
             <button id="themeToggle" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
                <i class="fa fa-moon-o text-xl" aria-hidden="true"></i>
@@ -92,8 +105,9 @@
    </header>
 
    <!-- 加载动画（全局） -->
-   <div id="loadingOverlay" class="fixed inset-0 bg-black/30 flex items-center justify-center hidden z-50">
-      <div class="bg-white dark-card rounded-xl p-6 flex flex-col items-center">
+   <div id="loadingOverlay"
+      class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center hidden z-50">
+      <div class="bg-white dark-card rounded-xl p-6 flex flex-col items-center shadow-lg">
          <i class="fa fa-spinner loading-spin text-3xl text-primary mb-3"></i>
          <p class="text-gray-700 dark:text-gray-300">处理中...</p>
       </div>
@@ -101,7 +115,7 @@
 
    <!-- 密码验证弹窗（默认隐藏） -->
    <div id="passwordModal"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 transition-opacity duration-300">
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
       <div class="bg-white dark-card rounded-xl p-6 w-full max-w-sm card-transition transform scale-95 opacity-0"
          id="passwordModalContent">
          <h3 class="text-xl font-bold mb-4 flex items-center">
@@ -111,22 +125,22 @@
          <div class="mb-4">
             <label class="block text-sm text-gray-600 dark-text-gray-300 mb-1">请输入管理员密码</label>
             <input type="password" id="adminPassword"
-               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+               class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                placeholder="输入密码">
             <p id="passwordError" class="text-red-500 text-sm mt-1 hidden">密码错误，请重试</p>
          </div>
          <div class="flex justify-end gap-3">
             <button type="button" id="cancelPasswordBtn"
-               class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">取消</button>
+               class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">取消</button>
             <button type="button" id="confirmPasswordBtn"
-               class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">确认</button>
+               class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">确认</button>
          </div>
       </div>
    </div>
 
    <!-- 管理员面板弹窗（默认隐藏） -->
    <div id="adminModal"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 transition-opacity duration-300">
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
       <div class="bg-white dark-card rounded-xl p-6 w-full max-w-md card-transition transform scale-95 opacity-0"
          id="adminModalContent">
          <h3 class="text-xl font-bold mb-4 flex items-center">
@@ -135,65 +149,66 @@
          </h3>
          <div class="space-y-4">
             <!-- 密码修改 -->
-            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                <h4 class="font-medium mb-2 flex items-center">
                   <i class="fa fa-key mr-2 text-primary" aria-hidden="true"></i>修改管理员密码
                </h4>
                <div class="space-y-2">
                   <input type="password" id="oldPassword"
-                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                     class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                      placeholder="原密码">
                   <input type="password" id="newPassword"
-                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                     class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                      placeholder="新密码（至少6位）">
                   <input type="password" id="confirmNewPassword"
-                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                     class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                      placeholder="确认新密码">
                   <p id="passwordChangeError" class="text-red-500 text-sm hidden">密码不一致或格式错误</p>
                   <p id="passwordChangeSuccess" class="text-green-500 text-sm hidden">密码修改成功！</p>
                </div>
                <button id="changePasswordBtn"
-                  class="mt-3 w-full px-4 py-2 bg-admin text-white rounded-lg hover:bg-admin/90">保存修改</button>
+                  class="mt-3 w-full px-4 py-2 bg-admin text-white rounded-lg hover:bg-admin/90 transition-colors">保存修改</button>
             </div>
 
             <!-- 数据管理 -->
-            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                <h4 class="font-medium mb-3 flex items-center">
                   <i class="fa fa-database mr-2 text-primary" aria-hidden="true"></i>数据管理
                </h4>
                <div class="flex gap-3">
                   <button id="exportDataBtn"
-                     class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center justify-center">
+                     class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
                      <i class="fa fa-download mr-2" aria-hidden="true"></i>导出数据
                   </button>
                   <button id="importDataBtn"
-                     class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center justify-center">
+                     class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
                      <i class="fa fa-upload mr-2" aria-hidden="true"></i>导入数据
                   </button>
                   <input type="file" id="importFileInput" accept=".json" class="hidden">
                </div>
                <button id="clearDataBtn"
-                  class="mt-3 w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center justify-center">
+                  class="mt-3 w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center">
                   <i class="fa fa-trash mr-2" aria-hidden="true"></i>清空自定义数据
                </button>
             </div>
 
             <!-- 云端同步（新增） -->
-            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                <h4 class="font-medium mb-3 flex items-center">
                   <i class="fa fa-cloud mr-2 text-primary" aria-hidden="true"></i>云端同步（GitHub Gist）
                </h4>
                <div class="mb-3">
                   <input type="text" id="githubTokenInput"
-                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                     class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                      placeholder="GitHub 个人访问令牌（Token）">
                </div>
                <div class="flex gap-3">
                   <button id="initGistBtn"
-                     class="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                     class="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
                      <i class="fa fa-plus mr-2" aria-hidden="true"></i>初始化云端存储
                   </button>
-                  <button id="syncGistBtn" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                  <button id="syncGistBtn"
+                     class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                      <i class="fa fa-refresh mr-2" aria-hidden="true"></i>同步云端数据
                   </button>
                </div>
@@ -204,14 +219,14 @@
          </div>
          <div class="mt-6 flex justify-end">
             <button type="button" id="closeAdminModalBtn"
-               class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">关闭</button>
+               class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">关闭</button>
          </div>
       </div>
    </div>
 
    <!-- 新增网址弹窗（默认隐藏） -->
    <div id="addLinkModal"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 transition-opacity duration-300">
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
       <div class="bg-white dark-card rounded-xl p-6 w-full max-w-sm card-transition transform scale-95 opacity-0"
          id="addLinkModalContent">
          <h3 class="text-xl font-bold mb-4 flex items-center">
@@ -223,21 +238,21 @@
                <label class="block text-sm text-gray-600 dark-text-gray-300 mb-1">网址名称 <span
                      class="text-red-500">*</span></label>
                <input type="text" name="linkName"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                  class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                   required>
             </div>
             <div class="mb-3">
                <label class="block text-sm text-gray-600 dark-text-gray-300 mb-1">网址链接 <span
                      class="text-red-500">*</span></label>
                <input type="url" name="linkUrl"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                  class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                   placeholder="https://" required>
             </div>
             <div class="mb-3">
                <label class="block text-sm text-gray-600 dark-text-gray-300 mb-1">所属分类 <span
                      class="text-red-500">*</span></label>
                <select name="linkCategory"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                  class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                   required>
                   <option value="学习工具">学习工具</option>
                   <option value="设计资源">设计资源</option>
@@ -251,46 +266,49 @@
             <div class="mb-4">
                <label class="block text-sm text-gray-600 dark-text-gray-300 mb-1">描述</label>
                <textarea name="linkDesc"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-darkBg dark:text-white"
+                  class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-darkBg dark:text-white focus:ring-1 focus:ring-primary"
                   rows="2" placeholder="简单描述网址功能"></textarea>
             </div>
             <div class="flex justify-end gap-3">
                <button type="button" id="closeAddLinkModalBtn"
-                  class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">取消</button>
-               <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">保存</button>
+                  class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">取消</button>
+               <button type="submit"
+                  class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">保存</button>
             </div>
          </form>
       </div>
    </div>
 
-   <!-- 删除确认弹窗（默认隐藏） -->
+   <!-- 删除确认弹窗（优化版） -->
    <div id="deleteConfirmModal"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 transition-opacity duration-300">
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
       <div class="bg-white dark-card rounded-xl p-6 w-full max-w-sm card-transition transform scale-95 opacity-0"
          id="deleteConfirmModalContent">
-         <h3 class="text-xl font-bold mb-4 flex items-center">
-            <i class="fa fa-exclamation-triangle mr-2 text-red-500" aria-hidden="true"></i>
+         <h3 class="text-xl font-bold mb-2 flex items-center text-red-500">
+            <i class="fa fa-exclamation-triangle mr-2" aria-hidden="true"></i>
             确认删除
          </h3>
-         <p class="text-gray-600 dark-text-gray-300 mb-6">确定要删除这个网址吗？此操作不可撤销。</p>
+         <p class="text-gray-600 dark-text-gray-300 mb-6 text-sm">
+            确定要删除「<span id="deleteLinkName" class="font-medium"></span>」这个网址吗？<br>此操作不可撤销，请谨慎操作。
+         </p>
          <input type="hidden" id="deleteLinkId"> <!-- 存储要删除的链接ID -->
          <div class="flex justify-end gap-3">
             <button type="button" id="cancelDeleteBtn"
-               class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">取消</button>
+               class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">取消</button>
             <button type="button" id="confirmDeleteBtn"
-               class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">确认删除</button>
+               class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">确认删除</button>
          </div>
       </div>
    </div>
 
-   <!-- 提示弹窗 -->
+   <!-- 提示弹窗（优化样式） -->
    <div id="successModal"
-      class="fixed top-20 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transition-opacity duration-300">
+      class="fixed top-8 left-1/2 -translate-x-1/2 bg-green-500/95 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transition-all duration-300 flex items-center">
       <i class="fa fa-check-circle mr-2" aria-hidden="true"></i>
       <span id="successMsg">操作成功！</span>
    </div>
    <div id="errorModal"
-      class="fixed top-20 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transition-opacity duration-300">
+      class="fixed top-8 left-1/2 -translate-x-1/2 bg-red-500/95 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transition-all duration-300 flex items-center">
       <i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>
       <span id="errorMsg">操作失败！</span>
    </div>
@@ -302,7 +320,7 @@
          <!-- 学习工具分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-primary/10 px-6 py-4 border-l-4 border-primary">
+            <div class="category-header bg-primary/5 px-6 py-4 border-l-4 border-primary">
                <h2 class="text-xl font-bold text-primary flex items-center">
                   <i class="fa fa-graduation-cap mr-2" aria-hidden="true"></i>
                   学习工具
@@ -363,7 +381,7 @@
          <!-- 设计资源分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-secondary/10 px-6 py-4 border-l-4 border-secondary">
+            <div class="category-header bg-secondary/5 px-6 py-4 border-l-4 border-secondary">
                <h2 class="text-xl font-bold text-secondary flex items-center">
                   <i class="fa fa-paint-brush mr-2" aria-hidden="true"></i>
                   设计资源
@@ -424,7 +442,7 @@
          <!-- 日常常用分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-accent/10 px-6 py-4 border-l-4 border-accent">
+            <div class="category-header bg-accent/5 px-6 py-4 border-l-4 border-accent">
                <h2 class="text-xl font-bold text-accent flex items-center">
                   <i class="fa fa-home mr-2" aria-hidden="true"></i>
                   日常常用
@@ -485,7 +503,7 @@
          <!-- 娱乐休闲分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-green-500/10 px-6 py-4 border-l-4 border-green-500">
+            <div class="category-header bg-green-500/5 px-6 py-4 border-l-4 border-green-500">
                <h2 class="text-xl font-bold text-green-500 flex items-center">
                   <i class="fa fa-video-camera mr-2" aria-hidden="true"></i>
                   娱乐休闲
@@ -546,7 +564,7 @@
          <!-- 办公效率分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-orange-500/10 px-6 py-4 border-l-4 border-orange-500">
+            <div class="category-header bg-orange-500/5 px-6 py-4 border-l-4 border-orange-500">
                <h2 class="text-xl font-bold text-orange-500 flex items-center">
                   <i class="fa fa-briefcase mr-2" aria-hidden="true"></i>
                   办公效率
@@ -607,7 +625,7 @@
          <!-- 实用工具分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-red-500/10 px-6 py-4 border-l-4 border-red-500">
+            <div class="category-header bg-red-500/5 px-6 py-4 border-l-4 border-red-500">
                <h2 class="text-xl font-bold text-red-500 flex items-center">
                   <i class="fa fa-globe mr-2" aria-hidden="true"></i>
                   实用工具
@@ -668,7 +686,7 @@
          <!-- 编程资源分类 -->
          <div
             class="category bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover hover:-translate-y-1">
-            <div class="category-header bg-blue-600/10 px-6 py-4 border-l-4 border-blue-600">
+            <div class="category-header bg-blue-600/5 px-6 py-4 border-l-4 border-blue-600">
                <h2 class="text-xl font-bold text-blue-600 flex items-center">
                   <i class="fa fa-code mr-2" aria-hidden="true"></i>
                   编程资源
@@ -727,10 +745,10 @@
          </div>
       </div>
 
-      <!-- 个人信息板块 -->
+      <!-- 个人信息板块（管理员入口改为头像） -->
       <div
          class="mt-12 bg-white dark-card rounded-xl shadow-card dark:shadow-dark-card overflow-hidden card-transition hover:shadow-card-hover dark:hover:shadow-dark-card-hover">
-         <div class="category-header bg-accent/10 px-6 py-4 border-l-4 border-accent">
+         <div class="category-header bg-accent/5 px-6 py-4 border-l-4 border-accent">
             <h2 class="text-xl font-bold text-accent flex items-center">
                <i class="fa fa-user-circle mr-2" aria-hidden="true"></i>
                关于我
@@ -738,15 +756,15 @@
          </div>
          <div class="category-content p-6">
             <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-               <!-- 头像区域 -->
-               <div
-                  class="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-3xl">
+               <!-- 头像区域（改为管理员入口） -->
+               <div id="adminAvatarBtn"
+                  class="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-3xl avatar-hover admin-btn">
                   <i class="fa fa-user" aria-hidden="true"></i>
                </div>
 
                <!-- 个人信息 -->
                <div class="flex-1">
-                  <h3 class="text-lg font-bold text-dark dark:text-white mb-2">EmberSalut</h3>
+                  <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">EmberSalut</h3>
                   <p class="text-gray-600 dark-text-gray-300 mb-4">热爱技术、设计与分享的开发者 🚀</p>
 
                   <!-- 联系方式列表 -->
@@ -758,17 +776,17 @@
                      </a>
                      <a href="https://gitee.com/EmberSalut" target="_blank"
                         class="flex items-center link-transition hover:text-red-500 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <i class="fa fa-code-fork text-xl mr-3 text-gray-700 dark:text-gray-300" aria-hidden="true"></i>
+                        <i class="fa fa-code-fork text-xl mr-3 text-gray-700 dark-text-gray-300" aria-hidden="true"></i>
                         <span class="text-gray-800 dark:text-white">码云 (Gitee)</span>
                      </a>
                      <a href="mailto:embersalut@example.com"
                         class="flex items-center link-transition hover:text-secondary p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <i class="fa fa-envelope text-xl mr-3 text-gray-700 dark:text-gray-300" aria-hidden="true"></i>
+                        <i class="fa fa-envelope text-xl mr-3 text-gray-700 dark-text-gray-300" aria-hidden="true"></i>
                         <span class="text-gray-800 dark:text-white">embersalut@example.com</span>
                      </a>
                      <a href="https://blog.embersalut.com" target="_blank"
                         class="flex items-center link-transition hover:text-green-500 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <i class="fa fa-pencil text-xl mr-3 text-gray-700 dark:text-gray-300" aria-hidden="true"></i>
+                        <i class="fa fa-pencil text-xl mr-3 text-gray-700 dark-text-gray-300" aria-hidden="true"></i>
                         <span class="text-gray-800 dark:text-white">个人博客</span>
                      </a>
                   </div>
@@ -776,7 +794,7 @@
             </div>
 
             <!-- 个人简介 -->
-            <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+            <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
                <h4 class="font-medium text-gray-800 dark:text-white mb-2">个人简介</h4>
                <p class="text-gray-600 dark-text-gray-300 text-sm leading-relaxed">
                   热衷于前端开发、UI/UX设计与技术分享，喜欢收集和整理各类实用工具与资源。
@@ -798,7 +816,7 @@
    </main>
 
    <!-- 页脚 -->
-   <footer class="bg-dark text-white py-8 mt-12">
+   <footer class="bg-gray-900 text-white py-8 mt-12">
       <div class="container mx-auto px-4">
          <div class="flex flex-col md:flex-row justify-between items-center">
             <div class="mb-4 md:mb-0">
@@ -838,7 +856,7 @@
       const noResults = document.getElementById('noResults');
       const addLinkBtn = document.getElementById('addLinkBtn');
       const themeToggle = document.getElementById('themeToggle');
-      const adminBtn = document.getElementById('adminBtn');
+      const adminAvatarBtn = document.getElementById('adminAvatarBtn'); // 新的管理员入口
       const passwordModal = document.getElementById('passwordModal');
       const passwordModalContent = document.getElementById('passwordModalContent');
       const passwordModalTitle = document.getElementById('passwordModalTitle');
@@ -866,6 +884,7 @@
       const deleteConfirmModal = document.getElementById('deleteConfirmModal');
       const deleteConfirmModalContent = document.getElementById('deleteConfirmModalContent');
       const deleteLinkId = document.getElementById('deleteLinkId');
+      const deleteLinkName = document.getElementById('deleteLinkName'); // 新增：显示要删除的链接名称
       const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
       const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
       const successModal = document.getElementById('successModal');
@@ -991,8 +1010,8 @@
          hideModal(passwordModal, passwordModalContent);
       });
 
-      // 管理员面板
-      adminBtn.addEventListener('click', () => {
+      // 管理员面板（改为点击头像触发）
+      adminAvatarBtn.addEventListener('click', () => {
          openPasswordModal('验证管理员密码', () => {
             showModal(adminModal, adminModalContent);
             // 清空密码修改表单
@@ -1137,11 +1156,13 @@
          showSuccess('网址添加成功！');
       });
 
-      // 删除网址确认
+      // 删除网址确认（优化版：显示链接名称）
       document.addEventListener('click', (e) => {
          if (e.target.closest('.delete-link-btn')) {
             const btn = e.target.closest('.delete-link-btn');
             const linkId = btn.getAttribute('data-id');
+            const linkEl = btn.closest('.link');
+            const linkName = linkEl.querySelector('.font-medium').textContent;
 
             // 内置链接不可删除
             if (linkId.startsWith(CONFIG.BUILT_IN_LINK_PREFIX)) {
@@ -1151,6 +1172,7 @@
 
             openPasswordModal('验证删除权限', () => {
                deleteLinkId.value = linkId;
+               deleteLinkName.textContent = linkName; // 显示要删除的链接名称
                showModal(deleteConfirmModal, deleteConfirmModalContent);
             });
          }
@@ -1194,59 +1216,4 @@
          const categoryContent = document.querySelector(`.category-content[data-category="${link.category}"]`);
          if (!categoryContent) return;
 
-         const linkEl = document.createElement('div');
-         linkEl.className = 'link group';
-         linkEl.setAttribute('data-link-id', link.id);
-         linkEl.innerHTML = `
-            <div class="flex items-start">
-               <a href="${link.url}" target="_blank"
-                  class="flex-1 flex items-start link-transition group-hover:text-primary">
-                  <i class="fa fa-external-link text-sm mt-1 mr-2 text-gray-400 dark-text-gray-500 group-hover:text-primary/70"
-                     aria-hidden="true"></i>
-                  <div>
-                     <span class="font-medium block">${link.name}</span>
-                     <span class="text-gray-600 dark-text-gray-300 text-sm mt-1 block">${link.desc || '无描述'}</span>
-                  </div>
-               </a>
-               <button class="delete-link-btn delete-btn" data-id="${link.id}">
-                  <i class="fa fa-trash-o" aria-hidden="true"></i>
-               </button>
-            </div>
-         `;
-
-         categoryContent.appendChild(linkEl);
-      }
-
-      function deleteLinkFromDOM(linkId) {
-         const linkEl = document.querySelector(`.link[data-link-id="${linkId}"]`);
-         if (linkEl) linkEl.remove();
-      }
-
-      function loadCustomLinks() {
-         // 清空现有自定义链接
-         document.querySelectorAll('.link').forEach(link => {
-            if (link.getAttribute('data-link-id').startsWith('custom-')) {
-               link.remove();
-            }
-         });
-
-         // 加载本地存储的自定义链接
-         const links = getLocalLinks();
-         links.forEach(link => {
-            addLinkToDOM(link);
-         });
-      }
-
-      // ---------------------- Gist 云端同步核心函数 ----------------------
-      // 1. 创建 Gist（首次初始化）
-      async function createGist(token) {
-         showLoading();
-         try {
-            const response = await axios.post(
-               'https://api.github.com/gists',
-               {
-                  description: 'EmberSalut的网址收藏夹数据',
-                  public: false, // 私有 Gist，仅自己可见
-                  files: {
-                     'bookmark_data.json': {
-                        content: JSON
+         const
