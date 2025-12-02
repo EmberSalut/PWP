@@ -1,0 +1,196 @@
+/* 1. 基础配置与颜色变量 */
+:root {
+    --color-background: #F7F9FC;
+    /* 浅灰白 */
+    --color-primary: #5B9A9A;
+    /* 主强调色：浅青绿色 */
+    --color-secondary: #9AC9C9;
+    /* 次强调色：淡薄荷绿 */
+    --color-text: #333333;
+    /* 深炭灰文字 */
+    --color-card-bg: #FFFFFF;
+    /* 卡片背景 */
+    --color-tag-bg: #EAF0F6;
+    /* 标签非激活背景 */
+}
+
+body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1000px;
+    /* 限制最大宽度 */
+    margin: 0 auto;
+    /* 居中 */
+    padding: 20px;
+}
+
+/* 2. 头部和搜索框样式 */
+.header {
+    text-align: center;
+    padding: 50px 20px 30px;
+    background-color: var(--color-card-bg);
+    box-shadow: 0 2px 8px rgba(var(--color-secondary), 0.3);
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: var(--color-primary);
+    margin-top: 0;
+    font-weight: 300;
+}
+
+.search-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.search-box input {
+    width: 60%;
+    max-width: 400px;
+    padding: 12px 15px;
+    border: 1px solid var(--color-secondary);
+    border-radius: 8px 0 0 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-box button {
+    padding: 12px 20px;
+    border: none;
+    background-color: var(--color-primary);
+    color: white;
+    font-size: 16px;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-box button:hover {
+    background-color: #4A8181;
+}
+
+/* 3. 标签筛选区样式 */
+.tag-section h2,
+.links-section h2 {
+    color: var(--color-text);
+    border-left: 5px solid var(--color-primary);
+    padding-left: 10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0 30px 0;
+}
+
+.tag-button {
+    padding: 8px 15px;
+    border: 1px solid var(--color-secondary);
+    border-radius: 20px;
+    background-color: var(--color-tag-bg);
+    color: var(--color-text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.tag-button:hover:not(.active) {
+    background-color: #DDEEEF;
+    border-color: var(--color-primary);
+}
+
+.tag-button.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    font-weight: 600;
+}
+
+
+/* 4. 链接卡片布局 */
+.link-grid {
+    display: grid;
+    /* 响应式核心：自动填充，最小宽度 180px */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.link-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 60px;
+    padding: 10px 15px;
+    background-color: var(--color-card-bg);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(154, 201, 201, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.link-card i {
+    color: var(--color-primary);
+    font-size: 1.2em;
+}
+
+.link-card span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.link-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(91, 154, 154, 0.4);
+    background-color: #E6F7F7;
+    color: var(--color-primary);
+}
+
+.no-links {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #888;
+    padding: 30px;
+    font-style: italic;
+}
+
+/* 5. 底部样式 */
+.footer {
+    text-align: center;
+    padding: 30px;
+    margin-top: 50px;
+    font-size: 0.85em;
+    color: #888;
+    border-top: 1px solid #eee;
+}
+
+/* 6. 响应式优化 (Media Queries) */
+@media (max-width: 600px) {
+    .link-grid {
+        grid-template-columns: 1fr;
+        /* 手机上改为单列，方便点击 */
+    }
+
+    .search-box input {
+        width: 80%;
+    }
+
+    .header h1 {
+        font-size: 1.5em;
+    }
+}
