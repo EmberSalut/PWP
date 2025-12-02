@@ -13,44 +13,10 @@ const linkData = [
     // **请在这里添加/修改你的自定义链接**
 ];
 
-let activeTag = "全部"; // 当前激活的标签
-
-// ==================== 标签和链接渲染逻辑 ====================
+// ==================== 链接渲染逻辑 (已简化) ====================
 
 /**
- * 动态渲染标签按钮
- */
-function renderTags() {
-    const tagContainer = document.getElementById('tag-container');
-    if (!tagContainer) return;
-
-    // 1. 收集所有不重复的标签
-    const allTags = new Set(["全部"]);
-    linkData.forEach(item => {
-        item.tags.forEach(tag => allTags.add(tag));
-    });
-
-    tagContainer.innerHTML = ''; 
-    
-    // 2. 生成标签按钮
-    allTags.forEach(tag => {
-        const button = document.createElement('button');
-        button.className = `tag-button ${tag === activeTag ? 'active' : ''}`;
-        button.textContent = tag;
-        button.setAttribute('data-tag', tag);
-        
-        button.onclick = () => {
-            activeTag = tag;
-            renderTags(); // 重新激活标签样式
-            renderLinks(); // 筛选链接
-        };
-        tagContainer.appendChild(button);
-    });
-}
-
-
-/**
- * 动态渲染链接卡片
+ * 动态渲染链接卡片 (不再进行标签筛选)
  */
 function renderLinks() {
     const linksContainer = document.getElementById('links-container');
@@ -58,18 +24,17 @@ function renderLinks() {
 
     const fragment = document.createDocumentFragment();
     
-    // 过滤链接
-    const filteredLinks = linkData.filter(item => 
-        activeTag === "全部" || item.tags.includes(activeTag)
-    );
+    // 直接使用所有链接
+    const allLinks = linkData; 
 
-    if (filteredLinks.length === 0) {
-        linksContainer.innerHTML = '<p class="no-links">当前标签下没有找到链接。</p>';
+    if (allLinks.length === 0) {
+        // 更新提示信息，因为不再有筛选状态
+        linksContainer.innerHTML = '<p class="no-links">当前收藏夹中没有链接。</p>';
         return;
     }
 
     // 生成链接卡片 HTML
-    filteredLinks.forEach(item => {
+    allLinks.forEach(item => {
         const card = document.createElement('a');
         card.href = item.url;
         card.target = "_blank";
@@ -126,8 +91,7 @@ function performSearch() {
 // ==================== 初始化函数和事件监听 ====================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 渲染初始内容
-    renderTags();
+    // 只渲染链接，不再渲染标签
     renderLinks();
     
     // 启动时间更新

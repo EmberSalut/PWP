@@ -1,42 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的清新收藏夹 - My Fresh Links</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <header class="header">
-        <h1>🌱 欢迎来到我的数字花园</h1>
-        <p id="current-time">加载中...</p>
-    </header>
-
-    <div class="container">
-        <div class="search-box">
-             <input type="text" id="searchInput" placeholder="快速搜索 (输入后回车搜索 Google)">
-             <button onclick="performSearch()">搜索</button>
-        </div>
-        
-        <section class="tag-section">
-            <h2><i class="fas fa-tags"></i> 标签筛选</h2>
-            <div class="tag-container" id="tag-container">
-                </div>
-        </section>
-        
-        <section class="links-section">
-            <h2><i class="fas fa-link"></i> 收藏列表</h2>
-            <div class="link-grid" id="links-container">
-                </div>
-        </section>
-
+<div class="container">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="快速搜索 (输入后回车搜索 Google)">
+        <button onclick="performSearch()">搜索</button>
     </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 Powered by GitHub Pages.</p>
-    </footer>
+    <section class="links-section">
+        <h2><i class="fas fa-link"></i> 收藏列表</h2>
+        <div class="link-grid" id="links-container">
+        </div>
+    </section>
 
-    <script src="script.js"></script>
-</body>
-</html>
+</div>
