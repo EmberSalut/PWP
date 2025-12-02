@@ -1,13 +1,25 @@
 // ==================== 配置与数据 ====================
-const STORAGE_KEY = 'myDigitalGarden_v3';
+const STORAGE_KEY = 'myDigitalGarden_v3'; // 保持新版Key，防止旧数据格式冲突
+
+// 这里填回了您原始的所有链接
 const DEFAULT_LINKS = [
+    // --- 原始保留链接 ---
+    { title: "魔戒 Mojie.App", url: "https://mojie.app/", icon: "fas fa-magic" },
+    { title: "AnyLand", url: "https://anyland.xyz", icon: "fas fa-map-marked-alt" },
     { title: "GitHub", url: "https://github.com", icon: "fab fa-github" },
-    { title: "ChatGPT", url: "https://chatgpt.com/", icon: "fas fa-robot" },
+    { title: "AI Hub Mix", url: "https://aihubmix.com/", icon: "fas fa-robot" },
     { title: "YouTube", url: "https://www.youtube.com", icon: "fab fa-youtube" },
-    { title: "Gmail", url: "https://mail.google.com", icon: "fas fa-envelope" },
-    { title: "X (Twitter)", url: "https://x.com", icon: "fab fa-x-twitter" },
-    { title: "Bilibili", url: "https://www.bilibili.com", icon: "fab fa-bilibili" },
-    { title: "内部 NAS", url: "http://192.168.1.3", icon: "fas fa-server" },
+    { title: "海外抖音 (TikTok)", url: "https://www.tiktok.com", icon: "fab fa-tiktok" },
+
+    // --- 个人/内部链接 ---
+    { title: "内部网络 NAS", url: "http://192.168.1.3", icon: "fas fa-server" },
+    { title: "海南热带海洋学院教务处", url: "http://jwc.hntou.edu.cn/", icon: "fas fa-graduation-cap" },
+    
+    // --- 社交与 AI ---
+    { title: "X (Twitter)", url: "https://x.com/home", icon: "fab fa-twitter" },
+    { title: "ChatGPT", url: "https://chatgpt.com/", icon: "fas fa-comments" }, // 原版用 comments 图标
+    { title: "Gemini", url: "https://gemini.google.com/", icon: "fas fa-brain" },
+    { title: "Midjourney", url: "https://www.midjourney.com/", icon: "fas fa-palette" },
 ];
 
 // ==================== 核心逻辑 ====================
@@ -27,7 +39,7 @@ function saveLinks(links) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
 }
 
-// 2. 自动匹配图标 (Simple Heuristic)
+// 2. 自动匹配图标 (Simple Heuristic - 辅助新添加的链接)
 function guessIcon(url) {
     const lowerUrl = url.toLowerCase();
     if (lowerUrl.includes('github')) return 'fab fa-github';
@@ -39,8 +51,6 @@ function guessIcon(url) {
     if (lowerUrl.includes('zhihu')) return 'fab fa-zhihu';
     if (lowerUrl.includes('instagram')) return 'fab fa-instagram';
     if (lowerUrl.includes('tiktok')) return 'fab fa-tiktok';
-    if (lowerUrl.includes('apple')) return 'fab fa-apple';
-    if (lowerUrl.includes('microsoft')) return 'fab fa-microsoft';
     
     // 默认图标
     return 'fas fa-globe';
@@ -62,7 +72,7 @@ function renderLinks() {
         const wrapper = document.createElement('div');
         wrapper.className = 'link-card-wrapper';
 
-        // 安全地构建 HTML，防止 XSS
+        // 安全地构建 HTML
         const a = document.createElement('a');
         a.href = link.url;
         a.className = 'link-card';
@@ -70,11 +80,11 @@ function renderLinks() {
         a.rel = 'noopener noreferrer'; // 安全性增强
 
         const icon = document.createElement('i');
-        // 确保 icon 类名是安全的，虽然这里主要依赖 fontawesome
+        // 优先使用数据中的图标，如果没有则使用默认
         icon.className = `icon-main ${link.icon || 'fas fa-link'}`;
         
         const span = document.createElement('span');
-        span.textContent = link.title; // 使用 textContent 防止注入
+        span.textContent = link.title; 
 
         a.appendChild(icon);
         a.appendChild(span);
@@ -107,7 +117,7 @@ function handleAdd(e) {
         finalUrl = 'https://' + url;
     }
 
-    // 智能匹配图标
+    // 智能匹配图标 (如果用户没填)
     if (!icon) {
         icon = guessIcon(finalUrl);
     }
@@ -124,7 +134,7 @@ function handleAdd(e) {
 }
 
 function deleteLink(e, index) {
-    e.stopPropagation(); // 防止触发链接跳转
+    e.stopPropagation(); 
     if (confirm('确定要移除这个链接吗？')) {
         const links = loadLinks();
         links.splice(index, 1);
@@ -157,9 +167,10 @@ function fillIconExample(el) {
 // 时间更新
 function updateTime() {
     const now = new Date();
+    // 格式：12月2日 星期二 19:30
     const str = now.toLocaleDateString('zh-CN', { 
         month: 'long', day: 'numeric', weekday: 'long' 
-    }) + ' ' + now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute:'2-digit' });
+    }) + ' ' + now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute:'2-digit', hour12: false });
     document.getElementById('current-time').textContent = str;
 }
 
@@ -168,7 +179,6 @@ function initTheme() {
     const toggleBtn = document.getElementById('theme-toggle');
     const icon = toggleBtn.querySelector('i');
     
-    // 检查本地存储或系统偏好
     const savedTheme = localStorage.getItem('theme');
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
@@ -198,10 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTime();
     setInterval(updateTime, 1000);
     
-    // 设置年份
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // 绑定事件
     document.getElementById('addLinkForm').addEventListener('submit', handleAdd);
     document.getElementById('toggleAddPanel').addEventListener('click', toggleAddPanel);
     document.getElementById('searchInput').addEventListener('keypress', (e) => {
